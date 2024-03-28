@@ -1,3 +1,29 @@
+# pyproject.toml
+
 [build-system]
-requires = ["setuptools >= 40.0.0"]
+requires      = ["setuptools>=59.6.0", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "inuits-python-logging-loki"
+version = "1.1.2"
+description = "Python logging handler for Grafana Loki."
+readme = "README.md"
+authors = [{ name = "Inuits", email = "developers@inuits.eu" }, {name="Andrey Maslov", email="greyzmeem@gmail.com"}]
+license = { file = "LICENSE" }
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+]
+keywords = ["inuits-python-logging-loki", "inuits_python_logging_loki", "python-logging-loki", "python_logging_loki"]
+dependencies = ["rfc3339>=6.1", "requests"]
+
+[project.urls]
+Homepage = "https://github.com/inuits/python-logging-loki"
