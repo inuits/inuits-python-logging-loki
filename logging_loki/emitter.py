@@ -129,7 +129,7 @@ class LokiEmitter:
 
         extra_tags = {}
         if self.props_to_labels:
-            jsonline = json.loads(line)
+            jsonline = json.loads(line) if self.as_json else {}
             for k in self.props_to_labels:
                 if prop_value := getattr(record, k, None) or jsonline.get(k, None):
                     extra_tags.update({k: prop_value})
