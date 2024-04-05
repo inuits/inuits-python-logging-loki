@@ -133,9 +133,9 @@ class LokiEmitter:
             for k in self.props_to_labels:
                 if prop_value := getattr(record, k, None) or jsonline.get(k, None):
                     if isinstance(self.props_to_labels, list):
-                        extra_tags.update({k: prop_value})
+                        extra_tags.update({k: str(prop_value)})
                     else:
-                        extra_tags.update({self.props_to_labels[k]: prop_value})
+                        extra_tags.update({self.props_to_labels[k]: str(prop_value)})
         if isinstance(passed_tags := getattr(record, "tags", {}), dict):
             extra_tags = extra_tags | passed_tags
 
