@@ -26,7 +26,7 @@ handler = logging_loki.LokiHandler(
     tags={"application": "my-app"},
     headers={"X-Scope-OrgID": "example-id"},
     auth=("username", "password"),
-    props_to_labels: Optional[list[str]] = ["foo"]
+    props_to_labels = ["foo"]
 )
 
 logger = logging.getLogger("my-logger")
@@ -43,6 +43,26 @@ Example above will send `Something happened` message along with these labels:
 - Message level as `serverity`
 - Logger's name as `logger`
 - Labels from `tags` item of `extra` dict
+- Property `foo` from log record will be sent as loki label
+
+## Properties to label
+
+Using a dict instead of a list for `props_to_labels` will enable renaming labels
+
+```python
+handler = logging_loki.LokiHandler(
+    url="https://my-loki-instance/loki/api/v1/push",
+    tags={"application": "my-app"},
+    props_to_labels = {
+        "otelTraceID": "trace_id"
+        "otelSpanID":  "span_id"
+    }
+)
+```
+
+In this case, the properties `otelTraceID` & `otelSpanID` will be renamed to `trace_id` & `span_id` loki labels
+
+## Non-blocking mode
 
 The given example is blocking (i.e. each call will wait for the message to be sent).  
 But you can use the built-in `QueueHandler` and` QueueListener` to send messages in a separate thread.
