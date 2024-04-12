@@ -43,7 +43,7 @@ class LokiEmitter:
         headers: Optional[dict] = None, 
         auth: BasicAuth = None, 
         as_json: bool = False,
-        props_to_labels: Optional[list[str]] = None,
+        props_to_labels: Optional[list[str] | dict] = None,
         level_tag: Optional[str] = const.level_tag,
         logger_tag: Optional[str] = const.logger_tag,
         verify: Union[bool, str] = True
@@ -67,7 +67,7 @@ class LokiEmitter:
         self.auth = auth
         #: Optional bool, send record as json?
         self.as_json = as_json
-        #: Optional list, convert properties to loki labels
+        #: Optional list, convert properties to loki labels or dict to remap original properties to loki labels
         self.props_to_labels = props_to_labels or []
         #: Label name indicating logging level.
         self.level_tag: str = level_tag
@@ -129,10 +129,13 @@ class LokiEmitter:
 
         extra_tags = {}
         if self.props_to_labels:
-            jsonline = json.loads(line)
+            jsonline = json.loads(line) if self.as_json else {}
             for k in self.props_to_labels:
                 if prop_value := getattr(record, k, None) or jsonline.get(k, None):
-                    extra_tags.update({k: prop_value})
+                    if isinstance(self.props_to_labels, list):
+                        extra_tags.update({k: str(prop_value)})
+                    else:
+                        extra_tags.update({self.props_to_labels[k]: str(prop_value)})
         if isinstance(passed_tags := getattr(record, "tags", {}), dict):
             extra_tags = extra_tags | passed_tags
 
