@@ -26,6 +26,7 @@ def with_lock(method: Callable):
             return method(self, *method_args, **method_kwargs)
         finally:
             self._lock.release()
+
     return _impl
 
 
@@ -37,16 +38,17 @@ class LokiEmitter:
     label_replace_with = const.label_replace_with
     session_class = requests.Session
 
-    def __init__(self, 
-        url: str, 
-        tags: Optional[dict] = None, 
-        headers: Optional[dict] = None, 
-        auth: BasicAuth = None, 
+    def __init__(
+        self,
+        url: str,
+        tags: Optional[dict] = None,
+        headers: Optional[dict] = None,
+        auth: BasicAuth = None,
         as_json: bool = False,
         props_to_labels: Optional[list[str] | dict] = None,
         level_tag: Optional[str] = const.level_tag,
         logger_tag: Optional[str] = const.logger_tag,
-        verify: Union[bool, str] = True
+        verify: Union[bool, str] = True,
     ):
         """
         Create new Loki emitter.
@@ -85,12 +87,28 @@ class LokiEmitter:
         payload = self.build_payload(record, line)
         self._post_to_loki(payload)
 
+    @staticmethod
+    def convert_stream_key_values_to_string(payload):
+        """To prevent error 400 when a label isn't a string for Loki 2.9.4"""
+        if "streams" in payload:
+            for stream_data in payload["streams"]:
+                if "stream" in stream_data:
+                    stream = stream_data["stream"]
+                    for key, value in stream.items():
+                        if value is None:
+                            stream[key] = "null"
+                        elif not isinstance(value, str):
+                            stream[key] = str(stream[key])
+        return payload
+
     def _post_to_loki(self, payload: dict):
+        payload = self.convert_stream_key_values_to_string(payload)
         resp = self.session.post(self.url, json=payload, headers=self.headers)
         # TODO: Enqueue logs instead of raising an error and losing the logs
         if resp.status_code != self.success_response_code:
-            raise ValueError("Unexpected Loki API response status code: {0}".format(resp.status_code))
-
+            raise ValueError(
+                "Unexpected Loki API response status code: {0}".format(resp.status_code)
+            )
 
     @property
     def session(self) -> requests.Session:
@@ -139,7 +157,6 @@ class LokiEmitter:
         if isinstance(passed_tags := getattr(record, "tags", {}), dict):
             extra_tags = extra_tags | passed_tags
 
-        
         for tag_name, tag_value in extra_tags.items():
             cleared_name = self.format_label(tag_name)
             if cleared_name:
@@ -153,16 +170,22 @@ class LokiEmitter:
         ns = 1e9
         ts = str(int(time.time() * ns))
 
-        line = json.dumps(record, default=lambda obj: obj.__dict__) if self.as_json else line
+        line = (
+            json.dumps(record, default=lambda obj: obj.__dict__)
+            if self.as_json
+            else line
+        )
 
         stream = {
             "stream": labels,
             "values": [[ts, line]],
         }
         return {"streams": [stream]}
-    
+
     @with_lock
     def emit_batch(self, records: list[Tuple[logging.LogRecord, str]]):
         """Send log records to Loki."""
-        streams = [self.build_payload(record[0], record[1])["streams"][0] for record in records]
+        streams = [
+            self.build_payload(record[0], record[1])["streams"][0] for record in records
+        ]
         self._post_to_loki({"streams": streams})
