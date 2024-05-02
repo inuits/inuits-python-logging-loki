@@ -1,7 +1,7 @@
 import logging
 import logging.handlers
 from multiprocessing import Queue
-from logging_loki import LokiHandler
+from .handlers import LokiHandler
 
 
 class LokiLogger:

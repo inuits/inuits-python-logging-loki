@@ -1,7 +1,5 @@
-import copy
-
-from logging_loki import LogContext
-from logging_loki import LokiLogger
+from .log_context import LogContext
+from .loki_logger import LokiLogger
 
 
 class LokiContextLogger:

@@ -1,6 +1,6 @@
 import json
 
-from logging_loki import LokiLogger
+from .loki_logger import LokiLogger
 
 
 class JsonLokiLogger:
