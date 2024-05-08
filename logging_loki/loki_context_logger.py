@@ -6,7 +6,9 @@ class LokiContextLogger:
     def __init__(self, logger: LokiLogger):
         self.logger = logger
 
-    def _log(self, level, message, code=None, log_context: LogContext | None = LogContext(), exc_info=None):
+    def _log(self, level, message, code=None, log_context=None, exc_info=None):
+        if log_context is None:
+            log_context = LogContext()
         log_context.set_message(message)
         tags = {"message_code": code}
         tags.update(log_context.get_tags())
