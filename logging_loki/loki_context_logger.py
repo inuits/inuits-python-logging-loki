@@ -16,20 +16,20 @@ class LokiContextLogger:
         else:
             log_func(log_context.to_string(), tags)
 
-    def debug(self, message, code=None, log_context=None):
+    def debug(self, message, log_context=None, code=None):
         self._log('debug', message, code, log_context)
 
-    def info(self, message, code=None, log_context=None):
+    def info(self, message, log_context=None, code=None):
         self._log('info', message, code, log_context)
 
-    def warning(self, message, code=None, log_context=None):
+    def warning(self, message, log_context=None, code=None):
         self._log('warning', message, code, log_context)
 
-    def error(self, message, code=None, log_context=None):
+    def error(self, message, log_context=None, code=None):
         self._log('error', message, code, log_context)
 
-    def critical(self, message, code=None, log_context=None):
+    def critical(self, message, log_context=None, code=None):
         self._log('critical', message, code, log_context)
 
-    def exception(self, message, exc_info=None, code=None, log_context=None):
+    def exception(self, message, exc_info=None, log_context=None, code=None):
         self._log('exception', message, code, log_context, exc_info)
